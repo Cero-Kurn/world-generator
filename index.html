@@ -1,1 +1,33 @@
-
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Procedural World Generator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div>
+      <p class="eyebrow">PROCEDURAL WORLD ENGINE · V0.1</p>
+      <h1>Star System Generator</h1>
+      <p class="subtitle">A deterministic reference generator for coherent fictional star systems and worlds.</p>
+    </div>
+    <div class="controls">
+      <label for="seedInput">Seed</label>
+      <div class="seed-row">
+        <input id="seedInput" type="text" value="Canopus-01" autocomplete="off">
+        <button id="generateButton">Generate</button>
+        <button id="randomButton" class="secondary">Random Seed</button>
+      </div>
+      <p class="hint">The same seed always produces the same system.</p>
+    </div>
+  </header>
+  <main id="output" class="main-grid" aria-live="polite"></main>
+  <footer>
+    <span>V0.1 Foundation</span>
+    <span>Seed → Star → Orbits → Planets</span>
+  </footer>
+  <script type="module" src="js/generator.js"></script>
+</body>
+</html>
