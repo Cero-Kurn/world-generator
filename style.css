@@ -55,6 +55,10 @@ button:hover { filter: brightness(1.08); }
 .planet-title { display: flex; justify-content: space-between; gap: 10px; }
 .badge { display: inline-block; padding: 2px 7px; border: 1px solid var(--border); border-radius: 999px; color: var(--muted); font-size: 11px; }
 .badge.good { color: var(--good); border-color: #537b68; }
+.planet-section { margin-top: 18px; }
+.planet-section h4 { margin: 0 0 7px; color: var(--accent); font-size: 13px; font-weight: 700; }
+.planet-section .data-list { margin: 0; }
+.planet-section .callout { margin-top: 10px; font-size: 13px; }
 .data-list { margin: 12px 0 0; }
 .data-row { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; border-bottom: 1px solid rgba(38,50,71,.55); }
 .data-row:last-child { border-bottom: 0; }
@@ -63,7 +67,7 @@ button:hover { filter: brightness(1.08); }
 .callout { padding: 12px; margin-top: 14px; border-left: 3px solid var(--accent-2); background: rgba(185,167,255,.06); }
 .error { color: #f1a7a7; }
 .biome-features { border-top: 1px solid var(--border); margin-top: 14px; padding-top: 12px; }
-.biome-features h4 { margin: 0 0 8px; }
+.biome-features h4 { margin: 0 0 8px; color: var(--accent); font-size: 13px; }
 .biome-feature + .biome-feature { margin-top: 12px; }
 .feature-notes { margin: 4px 0 0; white-space: pre-line; color: var(--muted); font-size: 12px; }
 footer { max-width: 1200px; margin: 0 auto; padding: 18px 24px 40px; color: var(--muted); display: flex; justify-content: space-between; font-size: 12px; }

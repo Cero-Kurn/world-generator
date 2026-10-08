@@ -18,6 +18,10 @@ function row(label, value) {
   return `<div class="data-row"><span>${esc(label)}</span><span>${esc(value)}</span></div>`;
 }
 
+function planetSection(title, entries, detail = "") {
+  return `<section class="planet-section"><h4>${esc(title)}</h4><div class="data-list">${entries.map(([label, value]) => row(label, value)).join("")}</div>${detail}</section>`;
+}
+
 function render(system) {
   const habitable = system.habitableWorlds.length
     ? system.habitableWorlds.map(i => `Planet ${i}`).join(", ")
@@ -67,29 +71,34 @@ export function renderPlanet(p) {
         </div>
         <span class="badge">#${p.index}</span>
       </div>
-      <div class="data-list">
-        ${row("Orbit", p.orbitAU + " AU")}
-        ${row("Mass", p.mass + " M⊕")}
-        ${row("Radius", p.radius + " R⊕")}
-        ${row("Gravity", p.gravity + " g")}
-        ${row("Density", p.density + " g/cm³")}
-        ${row("Rotation", p.rotationHours + " h")}
-        ${row("Axial tilt", p.axialTilt + "°")}
-        ${row("Orbital period", p.orbitalPeriodDays + " days")}
-        ${row("Mean temperature", p.meanK + " K")}
-        ${row("Climate", p.climate.name)}
-        ${row("Atmosphere", p.atmosphere.name)}
-        ${row("Pressure", p.atmosphere.pressure + " atm")}
-        ${row("Water", p.waterPercent + "%")}
-        ${row("Ice", p.icePercent + "%")}
-        ${row("Land", p.landPercent + "%")}
-        ${row("Hydrology", p.hydrology)}
-        ${row("Geology", p.geology)}
-        ${row("Major geological feature", p.geologyFeature)}
-        ${row("Biome", p.biome)}
-        ${row("Hydrologic feature", p.hydrologyFeature)}
-      </div>
-      <div class="callout"><strong>Atmospheric composition:</strong> ${p.composition.map(g => `${esc(g.gas)} ${esc(g.percent)}%`).join(" · ")}</div>
+      ${planetSection("Physical properties", [
+        ["Mass", p.mass + " M⊕"],
+        ["Radius", p.radius + " R⊕"],
+        ["Gravity", p.gravity + " g"],
+        ["Density", p.density + " g/cm³"]
+      ])}
+      ${planetSection("Orbit & rotation", [
+        ["Orbit", p.orbitAU + " AU"],
+        ["Orbital period", p.orbitalPeriodDays + " days"],
+        ["Rotation", p.rotationHours + " h"],
+        ["Axial tilt", p.axialTilt + "°"]
+      ])}
+      ${planetSection("Atmosphere & climate", [
+        ["Atmosphere", p.atmosphere.name],
+        ["Pressure", p.atmosphere.pressure + " atm"],
+        ["Mean temperature", p.meanK + " K"],
+        ["Climate", p.climate.name]
+      ], `<div class="callout"><strong>Atmospheric composition:</strong> ${p.composition.map(g => `${esc(g.gas)} ${esc(g.percent)}%`).join(" · ")}</div>`)}
+      ${planetSection("Surface & water", [
+        ["Land", p.landPercent + "%"],
+        ["Water", p.waterPercent + "%"],
+        ["Ice", p.icePercent + "%"],
+        ["Hydrology", p.hydrology],
+        ["Hydrologic feature", p.hydrologyFeature],
+        ["Geology", p.geology],
+        ["Major geological feature", p.geologyFeature],
+        ["Biome", p.biome]
+      ])}
       ${p.biomeFeatures.length ? `<div class="biome-features"><h4>Contextual features</h4>${p.biomeFeatures.map(f =>
         `<div class="biome-feature"><strong>${esc(f.name)}</strong><p class="feature-notes">${esc(f.notes)}</p></div>`).join("")}</div>` : ""}
     </article>
