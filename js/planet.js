@@ -4,12 +4,13 @@ import { classifyAtmosphere, atmosphereComposition } from "../data/atmospheres.j
 import { classifyClimate } from "../data/climates.js";
 import { classifyHydrology, HYDRO_FEATURES } from "../data/hydrology.js";
 import { GEOLOGIC_STATES, GEO_FEATURES } from "../data/geology.js";
-import { selectBiome } from "../data/biomes.js";
+import { selectBiome, BIOME_TAGS } from "../data/biomes.js";
+import { selectBiomeFeatures } from "./biome-features.js";
 
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 const lerp = (a, b, t) => a + (b - a) * t;
 
-export function generatePlanet({ systemSeed, index, star, orbitAU }) {
+export function generatePlanet({ systemSeed, index, star, orbitAU, siteContext }) {
   const rng = deriveRng(systemSeed, "planet", index);
   const type = rng.weighted(PLANET_TYPES.map(x => ({ value: x, weight: x.weight })));
   const mass = lerp(type.mass[0], type.mass[1], rng.next());
@@ -41,6 +42,9 @@ export function generatePlanet({ systemSeed, index, star, orbitAU }) {
   const geologyFeature = rng.pick(GEO_FEATURES);
   const biome = terrestrial && atmosphere.pressure > 0
     ? selectBiome(meanK, waterPercent, rng) : { name: "No surface terrestrial biome" };
+  const biomeTag = BIOME_TAGS[biome.name] ?? null;
+  const biomeFeatures = siteContext?.biome === biomeTag && biomeTag !== null
+    ? selectBiomeFeatures(siteContext, deriveRng(systemSeed, "biome-features", index)) : [];
 
   const rotationHours = +rng.float(8, 90).toFixed(1);
   const axialTilt = +rng.float(0, 42).toFixed(1);
@@ -53,7 +57,8 @@ export function generatePlanet({ systemSeed, index, star, orbitAU }) {
     mass: +mass.toFixed(3), radius: +radius.toFixed(3), density: +density.toFixed(2), gravity,
     rotationHours, axialTilt, orbitalPeriodDays, equilibriumK, meanK,
     waterPercent, icePercent, landPercent, atmosphere, composition, climate, hydrology,
-    geology: geology.name, geologyFeature, biome: biome.name,
+    geology: geology.name, geologyFeature, biome: biome.name, biomeTag,
+    biomeFeatures: biomeFeatures.map(({ name, notes }) => ({ name, notes })),
     habitable: ["Temperate Forest", "Temperate Grassland", "Tropical Forest", "Tropical Grassland", "Boreal Forest"].includes(biome.name),
     hydrologyFeature: rng.pick(HYDRO_FEATURES)
   };

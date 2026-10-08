@@ -1,0 +1,86 @@
+// Conditions describe site evidence, not additional biome memberships.
+const all = (...conditions) => ({ all: conditions });
+const any = (...conditions) => ({ any: conditions });
+const text = path => ({ path, type: "text" });
+const flag = path => ({ path, type: "true" });
+const oneOf = (path, values) => ({ path, type: "enum", values });
+const list = path => ({ path, type: "text-list" });
+const check = name => ({ check: name });
+const human = (...conditions) => all(check("terrestrial"), ...conditions);
+const plant = all(text("plant.species"), flag("plant.climateCompatible"),
+  flag("plant.soilCompatible"), flag("plant.waterCompatible"));
+const invasive = all(text("organism.species"), flag("organism.introduced"),
+  flag("organism.established"), flag("organism.habitatCompatible"), text("organism.disruptiveEffect"));
+const pollutant = all(text("pollutant.substance"), text("pollutant.source"),
+  text("pollutant.route"), text("pollutant.affectedCommunity"), flag("pollutant.harmfulExposure"),
+  check("receiving-medium"));
+
+export const BIOME_FEATURE_RULES = {
+  "altered ecosystems": human(flag("alteration.significant"), text("alteration.ecosystemEffect"),
+    any(text("human.activity"), all(text("organism.species"), flag("organism.introduced"),
+      flag("organism.established"), flag("organism.habitatCompatible"), flag("alteration.introducedOrganismCause")))),
+  "anthrome": human(text("human.landUse"), flag("human.sustainedLandUse")),
+  "anthropogenic": human(text("human.activity"), text("human.feature"), flag("human.substantialModification")),
+  "anthropogenic influence": human(text("human.activity"), text("human.ecosystemEffect")),
+  "anthropogenic modification": human(text("human.activity"), text("human.alteration"),
+    oneOf("human.alterationTarget", ["land surface", "soil", "hydrology", "ecological structure"])),
+  "crops": human(oneOf("human.landUse", ["cultivation"]), plant,
+    flag("plant.cultivated"), flag("plant.cultivationCompatible")),
+  "heavy infrastructure": human(text("human.facility"), flag("human.largeInfrastructure"), text("human.ecosystemEffect")),
+  "human areas": human(text("human.landUse"), flag("human.occupied"), flag("human.dominantOccupation")),
+  "industrial": human(oneOf("human.landUse", ["manufacturing", "processing"]), text("human.facility")),
+  "machinery": human(oneOf("human.landUse", ["manufacturing", "processing", "cultivation", "construction"]),
+    text("human.equipment"), text("human.ecosystemEffect")),
+  "ornamental plants": human(text("human.landUse"), plant, flag("plant.cultivated"),
+    oneOf("plant.purpose", ["aesthetic"])),
+  "residential zones": human(oneOf("human.landUse", ["residential"]), flag("human.occupied"), list("human.structures")),
+  "street trees": human(flag("human.occupied"), text("human.street"), plant,
+    flag("plant.tree"), flag("plant.planted"), flag("plant.rootingCompatible"), flag("plant.maintenanceCompatible")),
+  "suburban": human(oneOf("human.landUse", ["residential"]), flag("human.occupied"),
+    flag("human.urbanFringe"), text("human.remainingVegetation")),
+  "towers": human(text("human.structure"), flag("human.tallStructure"), text("human.purpose"),
+    any(text("human.airflowEffect"), text("human.ecosystemEffect"))),
+  "traffic": human(text("human.corridor"), list("human.vehicles"),
+    any(text("human.noiseEffect"), text("human.emissionsEffect"), text("human.fragmentationEffect"))),
+  "urban areas": human(oneOf("human.landUse", ["urban"]), flag("human.occupied"),
+    flag("human.denseSettlement"), list("human.structures"), text("human.corridor"), text("human.ecosystemEffect")),
+  "urban predators": human(text("human.urbanTerritory"), text("animal.species"),
+    flag("animal.habitatCompatible"), text("animal.prey"), text("animal.shelter"), text("animal.movementRoutes")),
+  "disease": all(text("host.species"), flag("host.resident"), flag("host.habitatCompatible"), flag("host.impaired"),
+    any(all(oneOf("disease.kind", ["infectious"]), flag("disease.hostCompatible"),
+      any(text("disease.pathogen"), all(text("disease.vector"), flag("disease.vectorTransmissionConfirmed")))),
+      all(oneOf("disease.kind", ["noninfectious"]), text("disease.environmentalStress"), flag("disease.hostCompatible")))),
+  "habitat fragmentation": all(flag("fragmentation.formerlyContinuous"), text("fragmentation.barrier"),
+    flag("fragmentation.isolatedPatches"), list("fragmentation.affectedOrganisms"), flag("fragmentation.movementAffected"),
+    flag("fragmentation.organismsResident"), flag("fragmentation.organismsHabitatCompatible"), check("fragmentation")),
+  "high biodiversity": check("high-biodiversity"),
+  "highest biodiversity": check("highest-biodiversity"),
+  "high biomass": all(flag("vegetation.dense"), flag("vegetation.resident"), check("high-biomass")),
+  "high endemism": check("endemism"),
+  "invasive species": invasive,
+  "minimal natural habitat": all(text("habitatLoss.cause"), check("habitat-loss")),
+  "soil depletion": all(oneOf("soil.lossMechanism", ["overuse", "harvesting", "erosion"]),
+    text("soil.nutrient"), text("soil.reference"), text("soil.unit"), check("soil-depletion")),
+  "hazards": all(text("hazard.name"), flag("hazard.natural"), text("hazard.threatenedTarget"),
+    flag("hazard.siteCompatible"), check("hazard")),
+  "environmental disturbance zones": all(text("disturbance.agent"), text("disturbance.effect"),
+    flag("disturbance.siteCompatible"), check("disturbance")),
+  "land masses": all(check("terrestrial"), oneOf("landMass.form", ["continent", "large island"]),
+    flag("landMass.connected"), flag("landMass.grounded"), text("terrain.geology"), text("terrain.relief"), text("climate.description")),
+  "mix of landforms": all(text("terrain.geology"), text("terrain.relief"), check("landforms")),
+  "subsidence zones": all(flag("subsidence.active"), flag("subsidence.surfaceLowering"), check("subsidence")),
+  "zones of high erosion": all(flag("erosion.active"), flag("erosion.intense"), text("erosion.substrate"),
+    flag("erosion.substrateCompatible"), check("erosion")),
+  "zones of transition": all(flag("transition.adjoining"), text("transition.description"), check("ecotone")),
+  "pesticides": all(pollutant, flag("pollutant.pesticide"), list("pollutant.susceptibleOrganisms"),
+    flag("pollutant.organismExposureCompatible"), check("pesticide-route")),
+  "polluted areas": all(check("terrestrial"), pollutant),
+  "pollution": pollutant,
+  "toxic spills": all(pollutant, flag("pollutant.toxic"), flag("pollutant.discreteRelease")),
+  "temperate zone": all(oneOf("climate.zone", ["temperate"]), flag("climate.regionalContext"), flag("climate.moderateSeasonality")),
+  "subtropical regions": all(oneOf("climate.zone", ["subtropical"]), flag("climate.regionalContext"),
+    any(flag("climate.mildWinters"), flag("climate.seasonalRainfall"))),
+  "tropical areas": all(oneOf("climate.zone", ["tropical"]), flag("climate.regionalContext")),
+  "tropical regions": all(oneOf("climate.zone", ["tropical"]), flag("climate.regionalContext")),
+  "tropical zone": all(oneOf("climate.zone", ["tropical"]), flag("climate.regionalContext"))
+};

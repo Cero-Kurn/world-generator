@@ -11,6 +11,18 @@ export const BIOMES = [
   { name: "Subtropical Dryland", minTemp: 285, maxTemp: 335, minWater: 5 }
 ];
 export function selectBiome(meanK, waterPercent, rng) {
+  if (!Number.isFinite(meanK) || meanK <= 0 || !Number.isFinite(waterPercent) || waterPercent < 0 || waterPercent > 100) {
+    throw new RangeError("Biome selection requires a positive temperature and water coverage between 0 and 100.");
+  }
   const candidates = BIOMES.filter(b => meanK >= b.minTemp && meanK <= b.maxTemp && waterPercent >= b.minWater);
-  return rng.pick(candidates.length ? candidates : [meanK < 250 ? BIOMES[1] : BIOMES[3]]);
+  return candidates.length ? rng.pick(candidates) : { name: "No supported surface biome" };
 }
+
+// The source sheet's official vegetation definitions distinguish savanna from grasslands.
+export const BIOME_TAGS = {
+  "Ice Sheet": "tundra", "Polar Desert": "tundra", "Cold Desert": "tundra",
+  "Temperate Desert": "deserts", "Boreal Forest": "taiga-forests",
+  "Temperate Grassland": "grasslands", "Temperate Forest": "temperate-forests",
+  "Tropical Grassland": "savanna", "Tropical Forest": "tropical-forests",
+  "Subtropical Dryland": "shrublands"
+};

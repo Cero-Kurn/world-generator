@@ -5,4 +5,6 @@ export const STAR_TYPES = [
   { id: "F", name: "Yellow-White Star", mass: 1.35, radius: 1.30, luminosity: 3.5, temperature: 6500, weight: 7 },
   { id: "A", name: "White Star", mass: 2.00, radius: 1.75, luminosity: 18, temperature: 8500, weight: 3 }
 ];
-export function selectStarType(rng) { return rng.weighted(STAR_TYPES); }
+export function selectStarType(rng) {
+  return rng.weighted(STAR_TYPES.map(value => ({ value, weight: value.weight })));
+}

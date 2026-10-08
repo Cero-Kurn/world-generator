@@ -2,7 +2,7 @@ import { deriveRng } from "./random.js";
 import { selectStarType } from "../data/stars.js";
 import { generatePlanet } from "./planet.js";
 
-export function generateStarSystem(seed) {
+export function generateStarSystem(seed, { siteContexts = {} } = {}) {
   const rng = deriveRng(seed, "system");
   const star = selectStarType(rng);
   const planetCount = rng.int(3, 9);
@@ -11,7 +11,7 @@ export function generateStarSystem(seed) {
 
   for (let i = 1; i <= planetCount; i++) {
     orbit *= rng.float(1.45, 2.05);
-    planets.push(generatePlanet({ systemSeed: seed, index: i, star, orbitAU: orbit }));
+    planets.push(generatePlanet({ systemSeed: seed, index: i, star, orbitAU: orbit, siteContext: siteContexts[i] }));
   }
 
   return {

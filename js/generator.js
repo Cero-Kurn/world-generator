@@ -56,7 +56,7 @@ function render(system) {
   `;
 }
 
-function renderPlanet(p) {
+export function renderPlanet(p) {
   return `
     <article class="planet ${p.habitable ? "habitable" : ""}">
       <div class="planet-title">
@@ -90,6 +90,8 @@ function renderPlanet(p) {
         ${row("Hydrologic feature", p.hydrologyFeature)}
       </div>
       <div class="callout"><strong>Atmospheric composition:</strong> ${p.composition.map(g => `${esc(g.gas)} ${esc(g.percent)}%`).join(" · ")}</div>
+      ${p.biomeFeatures.length ? `<div class="biome-features"><h4>Contextual features</h4>${p.biomeFeatures.map(f =>
+        `<div class="biome-feature"><strong>${esc(f.name)}</strong><p class="feature-notes">${esc(f.notes)}</p></div>`).join("")}</div>` : ""}
     </article>
   `;
 }
