@@ -78,6 +78,7 @@ button:hover { filter: brightness(1.08); }
 .local-site h4 { margin: 0 0 6px; font-size: 16px; }
 .site-summary { margin: 12px 0; }
 .local-site .data-list { font-size: 13px; }
+.local-site .data-row span:first-child { flex-shrink: 0; }
 .site-climate, .site-boundary, .site-empty { color: var(--muted); font-size: 13px; }
 .site-boundary { padding-left: 10px; border-left: 2px solid var(--accent-2); }
 .site-features { border-top: 1px solid var(--border); margin-top: 16px; padding-top: 12px; }
