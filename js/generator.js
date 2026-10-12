@@ -57,7 +57,39 @@ function render(system) {
       </div>
       <div class="planet-list">${system.planets.map(renderPlanet).join("")}</div>
     </section>
+    <section class="panel local-sites">
+      <div class="panel-header"><div>
+        <p class="eyebrow">REGIONAL EXPLORATION</p>
+        <h2>Local sites</h2>
+        <p>Explore generated habitats, terrain, and neighboring communities. Feature notes stay visible at each location.</p>
+      </div></div>
+      ${system.planets.map(renderPlanetSites).join("")}
+    </section>
   `;
+}
+
+export function renderSite(site) {
+  const c = site.context;
+  const setting = c.habitat.medium === "water"
+    ? `${c.habitat.location} · ${c.habitat.salinity}` : c.habitat.kind;
+  return `<article class="local-site">
+    <h4>${esc(site.name)}</h4><span class="badge">${esc(site.biome)}</span>
+    <p class="site-summary">${esc(site.summary)}</p>
+    <div class="data-list">${row("Habitat", setting)}${c.terrain ? row("Terrain", c.terrain.relief) : ""}</div>
+    <p class="site-climate">${esc(c.climate.description)}</p>
+    ${c.transition ? `<p class="site-boundary">${esc(c.transition.description)}</p>` : ""}
+    <div class="site-features"><h5>Contextual features</h5>${site.features.length ? site.features.map(f =>
+      `<div class="biome-feature"><strong>${esc(f.name)}</strong><p class="feature-evidence">${esc(f.evidence)}</p><p class="feature-notes">${esc(f.notes)}</p></div>`).join("")
+      : '<p class="site-empty">No features in the current context catalog match this site.</p>'}</div>
+  </article>`;
+}
+
+export function renderPlanetSites(p) {
+  return `<section class="planet-sites" id="planet-${p.index}-sites">
+    <h3>Planet ${esc(p.name)} <span class="badge">${p.sites.length} local sites</span></h3>
+    ${p.sites.length ? `<div class="site-list">${p.sites.map(renderSite).join("")}</div>`
+      : `<p class="site-empty">${esc(p.siteGenerationReason)}</p>`}
+  </section>`;
 }
 
 export function renderPlanet(p) {
@@ -101,6 +133,7 @@ export function renderPlanet(p) {
       ])}
       ${p.biomeFeatures.length ? `<div class="biome-features"><h4>Contextual features</h4>${p.biomeFeatures.map(f =>
         `<div class="biome-feature"><strong>${esc(f.name)}</strong><p class="feature-notes">${esc(f.notes)}</p></div>`).join("")}</div>` : ""}
+      ${p.sites.length ? `<a class="site-link" href="#planet-${p.index}-sites">Explore ${p.sites.length} local sites ↓</a>` : ""}
     </article>
   `;
 }

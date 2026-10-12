@@ -6,11 +6,12 @@ import { classifyHydrology, HYDRO_FEATURES } from "../data/hydrology.js";
 import { GEOLOGIC_STATES, GEO_FEATURES } from "../data/geology.js";
 import { selectBiome, BIOME_TAGS } from "../data/biomes.js";
 import { selectBiomeFeatures } from "./biome-features.js";
+import { generatePlanetSites } from "./sites.js";
 
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 const lerp = (a, b, t) => a + (b - a) * t;
 
-export function generatePlanet({ systemSeed, index, star, orbitAU, siteContext }) {
+export function generatePlanet({ systemSeed, index, star, orbitAU, siteContext, automaticSites = true }) {
   const rng = deriveRng(systemSeed, "planet", index);
   const type = rng.weighted(PLANET_TYPES.map(x => ({ value: x, weight: x.weight })));
   const mass = lerp(type.mass[0], type.mass[1], rng.next());
@@ -50,7 +51,7 @@ export function generatePlanet({ systemSeed, index, star, orbitAU, siteContext }
   const axialTilt = +rng.float(0, 42).toFixed(1);
   const orbitalPeriodDays = +(365.25 * Math.sqrt(Math.pow(orbitAU, 3) / star.mass)).toFixed(1);
 
-  return {
+  const planet = {
     index,
     name: toRoman(index),
     type: type.name, typeId: type.id, orbitAU: +orbitAU.toFixed(3),
@@ -62,6 +63,8 @@ export function generatePlanet({ systemSeed, index, star, orbitAU, siteContext }
     habitable: ["Temperate Forest", "Temperate Grassland", "Tropical Forest", "Tropical Grassland", "Boreal Forest"].includes(biome.name),
     hydrologyFeature: rng.pick(HYDRO_FEATURES)
   };
+  const generated = automaticSites ? generatePlanetSites(planet, systemSeed) : { sites: [], reason: "Automatic site generation is turned off." };
+  return { ...planet, sites: generated.sites, siteGenerationReason: generated.reason };
 }
 
 function toRoman(n) {

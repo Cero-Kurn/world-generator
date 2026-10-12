@@ -27,7 +27,17 @@ console.log(system.planets[1].biomeFeatures);
 
 Use `evaluateBiomeFeature(name, context)` from `js/biome-features.js` to get eligibility and reasons, or `selectBiomeFeatures(context, rng, { limit: 3 })` for direct site-level selection. The site selector supports aquatic and atmospheric contexts even though the current planetary model only generates reference terrestrial biomes. It samples without replacement and never manufactures missing evidence.
 
-The normal browser interface supplies no detailed site context yet, so these conditional features remain withheld there. A later site-generation layer can construct this evidence from settlements, habitat maps, communities, and regional comparisons.
+## Automatic sites
+
+The normal browser interface now generates three local sites per supported surface planet. These live in `planet.sites`, with `{ id, name, biome, biomeTag, summary, context, features }`. Each feature preserves its source `name` and complete `notes` and adds a short `evidence` description. The first site's biome matches the planet's reference; other terrestrial sites must meet the same temperature and water-coverage bounds. Features are selected only after the site context is constructed and validated by the existing gates.
+
+The generated regional layout is a small chain of neighboring habitat patches on one connected, grounded land mass. Supported forest–grassland–shrubland pairs can receive a boundary with actual neighboring site IDs. Local relief comes from the planet's geological feature; a generated exposed slope can establish a compatible natural hazard or erosive process. Regional climate uses prototype temperature bands (cold below 270 K, temperate 270–284 K, subtropical 285–294 K, tropical at 295 K and above), seasonal variation at axial tilt of at least 5°, moderate temperate seasonality up to 25°, and seasonal subtropical rainfall when water coverage is at least 10%. These are generator design criteria, not universal ecological thresholds or a latitude/weather simulation.
+
+An optional third water location replaces the southern land site when water coverage is positive, reference temperature is 273–330 K, and atmospheric pressure is at least 0.35 atm. These deliberately conservative prototype bounds do not model phase equilibrium, local weather, or water chemistry. The water setting uses the planet's hydrologic feature to establish a river, lake, sea, or inlet; closed-basin lakes can be freshwater or saline. Inland saline water stays distinct from marine water. Frozen worlds, airless worlds, and gas/ice giants never acquire an exposed liquid-water site through this layer.
+
+Automatic generation currently supplies natural terrain, habitat, and climate evidence. It does not assert settlement, cultivated or introduced organisms, pathogens, contaminants, species inventories, biomass, or endemism. Those conditions remain available through `siteContexts` or direct site-level selection. At most three features appear per automatic site, including at most one climatic-region descriptor to avoid repetitive output. A site with no eligible entries states that the current context catalog has no matching feature.
+
+All site and feature randomness is separate from planetary physics. `generateStarSystem(seed, { automaticSites: false })` disables the new layer; the reference-site `siteContexts` API and `planet.biomeFeatures` behavior are unchanged.
 
 ## Evidence
 
